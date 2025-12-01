@@ -127,3 +127,118 @@ button.decrement {
   line-height: 1.6;
   color: #374151;
 }
+
+/* Header */
+.app-header {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.app-title {
+  margin: 0;
+}
+
+/* Add Product button */
+.add-button {
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.2s ease;
+}
+
+.add-button:hover {
+  background-color: #0056b3;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-select {
+  padding: 8px;
+  font-size: 16px;
+}
+
+.search-input {
+  padding: 8px;
+  font-size: 16px;
+  width: 240px;
+}
+
+/* Cards wrapper */
+.cards-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* New Product Page */
+.new-product-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.error-text {
+  color: red;
+  margin-bottom: 12px;
+}
+
+.new-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.new-product-form input,
+.new-product-form textarea {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.submit-button {
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}

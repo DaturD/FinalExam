@@ -32,7 +32,7 @@ function Card({ title, products }) {
             </div>
 
             <h3>{p.name}</h3>
-            <p>Price: ${p.price}</p>
+            <p>Price: ₱{p.price}</p>
             <p>Quantity: {quantities[p.id] || 0}</p>
 
             <div className="quantity-controls">
