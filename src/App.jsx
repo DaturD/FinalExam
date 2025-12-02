@@ -7,39 +7,56 @@ import "./app.css";
 import { caseProducts, cpuProducts, ramProducts } from "./products";
 
 function App() {
-  // Initial categories with default products
+  // Start with three categories: Case, CPU, and RAM.
+  // Each category has a list of products.
   const [categories, setCategories] = useState([
     { title: "Case", items: caseProducts },
     { title: "CPU", items: cpuProducts },
     { title: "RAM", items: ramProducts }
   ]);
 
-  // State for filtering and searching
+  // Keep track of product quantities in one place.
+  // This is a map: product.id → quantity chosen.
+  const [quantities, setQuantities] = useState({});
+
+  // For filtering categories and searching products by name.
   const [categoryFilter, setCategoryFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Handler for adding a new product
-  // If category exists, append product; otherwise create a new category
+  // Add a new product to the right category.
+  // If the category exists, append the product.
+  // If not, create a new category with that product.
   const handleAddProduct = (product) => {
     setCategories(prev => {
       const existing = prev.find(
         c => c.title.toLowerCase() === product.category.toLowerCase()
       );
-      if (existing) {
-        // Add product to existing category
-        return prev.map(c =>
-          c.title.toLowerCase() === product.category.toLowerCase()
-            ? { ...c, items: [...c.items, product] }
-            : c
-        );
-      } else {
-        // Create new category with the product
-        return [...prev, { title: product.category, items: [product] }];
-      }
+      const next = existing
+        ? prev.map(c =>
+            c.title.toLowerCase() === product.category.toLowerCase()
+              ? { ...c, items: [...c.items, product] }
+              : c
+          )
+        : [...prev, { title: product.category, items: [product] }];
+
+      // Also initialize its quantity so it can be tracked.
+      setQuantities(q => ({ ...q, [product.id]: Number(product.quantity) || 0 }));
+      return next;
     });
   };
 
-  // Apply category filter and search term
+  // Change the quantity of a product.
+  // delta = +1 (increase) or -1 (decrease).
+  const handleQuantityChange = (id, delta) => {
+    setQuantities(prev => {
+      const current = prev[id] || 0;
+      const next = Math.max(current + delta, 0); // never go below 0
+      return { ...prev, [id]: next };
+    });
+  };
+
+  // Filter categories by selected dropdown and search term.
+  // This makes sure only matching products are shown.
   const filteredCards = categories
     .filter(card => !categoryFilter || card.title === categoryFilter)
     .map(card => ({
@@ -50,19 +67,33 @@ function App() {
     }))
     .filter(card => card.items.length > 0); // hide empty categories
 
+  // Overall Subtotal = sum of all product subtotals (price × quantity).
+  const overallSubtotal = categories.reduce((total, category) => {
+    return (
+      total +
+      category.items.reduce((catTotal, product) => {
+        const qty = quantities[product.id] || 0;
+        return catTotal + product.price * qty;
+      }, 0)
+    );
+  }, 0);
+
+  // Overall Total = sum of all product prices (ignoring quantity).
+  // This is just price + price + price for every product.
+  const overallTotal = categories.reduce((total, category) => {
+    return total + category.items.reduce((catSum, product) => catSum + product.price, 0);
+  }, 0);
+
   return (
     <Router>
       <div className="app-container">
-        {/* Header with title and Add Product button (top-right) */}
+        {/* Header with title and Add Product button */}
         <div className="app-header">
           <h1 className="app-title">Computer Parts Inventory</h1>
-          <Link to="/add-product" className="add-button">
-            ＋ Add Product
-          </Link>
+          <Link to="/add-product" className="add-button">＋ Add Product</Link>
         </div>
 
         <Routes>
-          {/* Main inventory route */}
           <Route
             path="/"
             element={
@@ -91,24 +122,40 @@ function App() {
                   />
                 </div>
 
-                {/* Display product cards */}
+                {/* Show product cards for each category */}
                 <div className="cards-wrapper">
                   {filteredCards.map(card => (
-                    <Card key={card.title} title={card.title} products={card.items} />
+                    <Card
+                      key={card.title}
+                      title={card.title}
+                      products={card.items}
+                      quantities={quantities}
+                      onQuantityChange={handleQuantityChange}
+                    />
                   ))}
+                </div>
+
+                {/* Show overall subtotal and overall total in separate cards */}
+                <div className="totals-wrapper">
+                  <div className="subtotal-card">
+                    <h2>Overall Subtotal</h2>
+                    <p>₱{overallSubtotal.toFixed(2)}</p>
+                  </div>
+
+                  <div className="total-card">
+                    <h2>Overall Total (all product prices)</h2>
+                    <p>₱{overallTotal.toFixed(2)}</p>
+                  </div>
                 </div>
               </>
             }
           />
 
-          {/* Product details route */}
+          {/* Product details page */}
           <Route path="/product/:id" element={<ProductDetail />} />
 
-          {/* Add Product route (form page) */}
-          <Route
-            path="/add-product"
-            element={<NewProducts onAddProduct={handleAddProduct} />}
-          />
+          {/* Add product page */}
+          <Route path="/add-product" element={<NewProducts onAddProduct={handleAddProduct} />} />
         </Routes>
       </div>
     </Router>

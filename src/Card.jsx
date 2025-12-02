@@ -1,56 +1,67 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "./card.css"; // import the new CSS
+import "./card.css";
 
-function Card({ title, products }) {
-  const [quantities, setQuantities] = useState({});
-
-  const handleChange = (id, delta) => {
-    setQuantities(prev => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 0) + delta, 0)
-    }));
-  };
+function Card({ title, products, quantities, onQuantityChange }) {
+  // Compute subtotal for this category.
+  // We add up (price × quantity) for every product in this category.
+  const categorySubtotal = products.reduce((sum, p) => {
+    const qty = quantities[p.id] || 0; // if no quantity yet, treat as 0
+    return sum + p.price * qty;
+  }, 0);
 
   return (
     <div className="card-container">
       <h2>{title}</h2>
 
       <div className="card-grid">
-        {products.map((p) => (
-          <div key={p.id} className="product-card">
-            {/* this part shows the product image with the cart icon on top */}
-            <div className="image-wrapper">
-              <img src={p.image} alt={p.name} />
-              <button
-                className="add-to-cart-icon"
-                disabled={(quantities[p.id] || 0) === 0}
-                onClick={() => alert(`${p.name} added to cart!`)}
-              >
-                🛒
-              </button>
+        {products.map((p) => {
+          const qty = quantities[p.id] || 0; // current quantity for this product
+
+          return (
+            <div key={p.id} className="product-card">
+              <div className="image-wrapper">
+                <img src={p.image} alt={p.name} />
+                {/* Add to cart button only works if quantity > 0 */}
+                <button
+                  className="add-to-cart-icon"
+                  disabled={qty === 0}
+                  onClick={() => alert(`${p.name} added to cart!`)}
+                >
+                  🛒
+                </button>
+              </div>
+
+              {/* Show product details */}
+              <h3>{p.name}</h3>
+              <p>Price: ₱{p.price}</p>
+              <p>Quantity: {qty}</p>
+
+              {/* Buttons to change quantity.
+                  - button decreases quantity but never below 0
+                  + button increases quantity */}
+              <div className="quantity-controls">
+                <button
+                  onClick={() => onQuantityChange(p.id, -1)}
+                  disabled={qty === 0}
+                >
+                  −
+                </button>
+                <button onClick={() => onQuantityChange(p.id, 1)}>+</button>
+              </div>
+
+              {/* Link to product details page */}
+              <Link to={`/product/${p.id}`} className="view-details">
+                View Details
+              </Link>
             </div>
+          );
+        })}
+      </div>
 
-            <h3>{p.name}</h3>
-            <p>Price: ₱{p.price}</p>
-            <p>Quantity: {quantities[p.id] || 0}</p>
-
-            <div className="quantity-controls">
-              <button
-                onClick={() => handleChange(p.id, -1)}
-                disabled={(quantities[p.id] || 0) === 0}
-              >
-                −
-              </button>
-              <button onClick={() => handleChange(p.id, 1)}>+</button>
-            </div>
-
-            {/* link to the product details page */}
-            <Link to={`/product/${p.id}`} className="view-details">
-              View Details
-            </Link>
-          </div>
-        ))}
+      {/* Show subtotal for this category at the bottom */}
+      <div className="category-subtotal">
+        <h3>{title} Subtotal: ₱{categorySubtotal.toFixed(2)}</h3>
       </div>
     </div>
   );
